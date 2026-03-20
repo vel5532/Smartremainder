@@ -409,6 +409,11 @@
   .voice-tips-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-family:var(--font-mono);margin-bottom:4px}
   .voice-tip{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--text2);line-height:1.4}
   .voice-tip strong{color:var(--accent)}
+
+  /* language selector */
+  .voice-lang-row{display:flex;gap:8px;margin-bottom:18px;width:100%;max-width:380px}
+  .voice-lang-btn{flex:1;padding:8px 10px;border-radius:var(--radius-sm);font-size:12px;font-weight:700;border:1px solid var(--border);background:var(--surface2);color:var(--text2);cursor:pointer;transition:var(--transition);text-align:center}
+  .voice-lang-btn.active{background:rgba(79,138,255,.15);border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
 <body>
@@ -453,6 +458,12 @@
     <div class="parsed-field"><span class="parsed-key">PRIORITY</span><span class="parsed-val" id="pPriority">—</span></div>
   </div>
 
+  <div class="voice-lang-row">
+    <button class="voice-lang-btn active" id="vlBtn-en" onclick="setVoiceLang('en-IN')">🇬🇧 English</button>
+    <button class="voice-lang-btn"        id="vlBtn-ta" onclick="setVoiceLang('ta-IN')">🇮🇳 தமிழ்</button>
+    <button class="voice-lang-btn"        id="vlBtn-hi" onclick="setVoiceLang('hi-IN')">🇮🇳 हिंदी</button>
+  </div>
+
   <div class="voice-actions">
     <button class="voice-btn voice-btn-mic" id="voiceMicBtn" onclick="toggleVoiceRecording()">
       <span id="vMicIcon">🎙️</span><span id="vMicLabel">Start</span>
@@ -463,11 +474,13 @@
 
   <div class="voice-tips">
     <div class="voice-tips-label">💡 Try saying</div>
-    <div class="voice-tip"><strong>"Call doctor tomorrow at 3pm"</strong></div>
-    <div class="voice-tip"><strong>"Buy groceries on Friday high priority"</strong></div>
-    <div class="voice-tip"><strong>"Team meeting next Monday at 10am work"</strong></div>
-    <div class="voice-tip"><strong>"Pay electricity bill on the 25th finance"</strong></div>
-    <div class="voice-tip"><strong>"Study for exam this weekend education"</strong></div>
+    <div id="voiceTips">
+      <div class="voice-tip"><strong>"Call doctor tomorrow at 3pm"</strong></div>
+      <div class="voice-tip"><strong>"Buy groceries on Friday high priority"</strong></div>
+      <div class="voice-tip"><strong>"Team meeting next Monday at 10am work"</strong></div>
+      <div class="voice-tip"><strong>"Pay electricity bill on the 25th finance"</strong></div>
+      <div class="voice-tip"><strong>"Study for exam this weekend education"</strong></div>
+    </div>
   </div>
 </div>
 
@@ -999,6 +1012,7 @@ let vRecording = false;   // mic state
 let vTranscript = '';     // accumulated final transcript
 let vParsed = null;       // last parsed result
 let vAnimFrame = null;    // waveform RAF handle
+let vLang = 'en-IN';      // active recognition language
 
 /* ── init recognition ── */
 function initVoice() {
@@ -1011,7 +1025,7 @@ function initVoice() {
   SRec = new SR();
   SRec.continuous = false;
   SRec.interimResults = true;
-  SRec.lang = 'en-US';
+  SRec.lang = vLang;
   SRec.maxAlternatives = 1;
 
   SRec.onstart = () => {
@@ -1050,6 +1064,44 @@ function initVoice() {
   };
 }
 
+/* ── set language ── */
+function setVoiceLang(lang) {
+  vLang = lang;
+  // Highlight active button
+  document.querySelectorAll('.voice-lang-btn').forEach(b => b.classList.remove('active'));
+  const map = { 'en-IN': 'vlBtn-en', 'ta-IN': 'vlBtn-ta', 'hi-IN': 'vlBtn-hi' };
+  const btn = document.getElementById(map[lang]);
+  if (btn) btn.classList.add('active');
+
+  // Recreate recognition with new lang
+  initVoice();
+
+  // Update tips
+  const tips = document.getElementById('voiceTips');
+  if (lang === 'ta-IN') {
+    tips.innerHTML = `
+      <div class="voice-tip"><strong>"நாளை டாக்டரை அழை"</strong> (Call doctor tomorrow)</div>
+      <div class="voice-tip"><strong>"வெள்ளிக்கிழமை காய்கறி வாங்க வேண்டும்"</strong> (Buy veggies Friday)</div>
+      <div class="voice-tip"><strong>"திங்கள் அன்று மீட்டிங்"</strong> (Meeting on Monday)</div>
+      <div class="voice-tip"><strong>"மின்சார பில் கட்ட வேண்டும்"</strong> (Pay electricity bill)</div>`;
+  } else if (lang === 'hi-IN') {
+    tips.innerHTML = `
+      <div class="voice-tip"><strong>"कल डॉक्टर को कॉल करो"</strong> (Call doctor tomorrow)</div>
+      <div class="voice-tip"><strong>"शुक्रवार को सब्जी खरीदनी है"</strong> (Buy veggies Friday)</div>
+      <div class="voice-tip"><strong>"सोमवार को मीटिंग है"</strong> (Meeting on Monday)</div>
+      <div class="voice-tip"><strong>"बिजली बिल भरना है"</strong> (Pay electricity bill)</div>`;
+  } else {
+    tips.innerHTML = `
+      <div class="voice-tip"><strong>"Call doctor tomorrow at 3pm"</strong></div>
+      <div class="voice-tip"><strong>"Buy groceries on Friday high priority"</strong></div>
+      <div class="voice-tip"><strong>"Team meeting next Monday at 10am"</strong></div>
+      <div class="voice-tip"><strong>"Pay electricity bill on the 25th"</strong></div>`;
+  }
+
+  const subLangName = { 'en-IN': 'English', 'ta-IN': 'Tamil (தமிழ்)', 'hi-IN': 'Hindi (हिंदी)' }[lang];
+  showToast(`Voice language: ${subLangName}`, 'info');
+}
+
 /* ── open / close ── */
 function openVoiceModal() {
   document.getElementById('voiceModal').classList.add('open');
@@ -1079,6 +1131,7 @@ function toggleVoiceRecording() {
     vTranscript = ''; vParsed = null;
     resetVoiceUI();
     try {
+      SRec.lang = vLang;
       SRec.start();
       document.getElementById('voiceMicBtn').classList.add('recording');
       document.getElementById('vMicIcon').textContent = '⏹️';
@@ -1495,7 +1548,11 @@ async function handleGrocPhoto(event) {
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
