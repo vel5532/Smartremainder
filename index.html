@@ -617,6 +617,8 @@ window.addEventListener('DOMContentLoaded', () => {
   checkNotifPermission(); scheduleAllNotifications();
   checkAutoSync(); initVoice();
   setInterval(checkOverdue, 60000);
+  // Auto-backup on every open if URL is configured
+  if (getScriptUrl()) setTimeout(() => backupToCloud(true), 1500);
 });
 
 /* ══════════ NAVIGATION ══════════ */
