@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="theme-color" content="#0b0e17" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<!-- WebIntoApp / WebView permissions -->
+<meta http-equiv="Permissions-Policy" content="microphone=*, camera=*" />
 <title>Smart Life Reminder</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <style>
@@ -17,15 +23,18 @@
     --font-display:'Syne',sans-serif; --font-mono:'Space Mono',monospace;
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{background:var(--bg);color:var(--text);font-family:var(--font-display);min-height:100vh;overflow-x:hidden;
+  html{scroll-behavior:smooth;height:100%;-webkit-text-size-adjust:100%}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-display);min-height:100%;min-height:100vh;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;
     background-image:radial-gradient(ellipse 60% 40% at 80% 0%,rgba(79,138,255,.07) 0%,transparent 60%),
     radial-gradient(ellipse 40% 30% at 10% 80%,rgba(162,89,255,.06) 0%,transparent 60%)}
   button{font-family:var(--font-display);cursor:pointer;border:none;outline:none}
   input,textarea,select{font-family:var(--font-display);outline:none}
   ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
 
-  .app-wrapper{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:90px}
+  .app-wrapper{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding-bottom:100px;background:var(--bg)}
+  /* Every page fills and scrolls */
+  .page{display:none;min-height:calc(100vh - 90px);background:var(--bg)}
+  .page.active{display:block}
 
   /* HEADER */
   .header{padding:20px 20px 10px;position:sticky;top:0;z-index:100;background:linear-gradient(180deg,var(--bg) 80%,transparent)}
@@ -107,7 +116,7 @@
   .empty-sub{font-size:13px;color:var(--text2);line-height:1.6}
 
   /* BOTTOM NAV */
-  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(17,21,33,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;z-index:200;padding:10px 0 20px}
+  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#111521;background:rgba(17,21,33,.98);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;z-index:200;padding:10px 0 20px;padding-bottom:max(20px,env(safe-area-inset-bottom))}
   .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;cursor:pointer;transition:var(--transition)}
   .nav-icon{font-size:20px}
   .nav-label{font-size:10px;font-family:var(--font-mono);color:var(--text3);transition:var(--transition)}
@@ -236,8 +245,7 @@
   .toast.success{border-color:var(--accent4)}.toast.error{border-color:var(--accent3)}.toast.info{border-color:var(--accent)}
   .toast-icon{font-size:16px;flex-shrink:0}
 
-  /* PAGES */
-  .page{display:none}.page.active{display:block}
+  /* PAGES — defined above in app-wrapper section */
   @media(min-width:481px){.app-wrapper{border-left:1px solid var(--border);border-right:1px solid var(--border)}}
 
   /* ═══════════════════════════════
@@ -299,7 +307,9 @@
   .groc-submit{width:100%;padding:11px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700;transition:var(--transition)}
   .groc-submit:hover{opacity:.9}
 
-  .groc-list-wrap{padding:0 20px;display:flex;flex-direction:column;gap:7px}
+  /* grocery sub-views — let page scroll naturally */
+  #grocListView, #grocExpView { min-height: 200px; }
+  .groc-list-wrap{padding:0 20px;display:flex;flex-direction:column;gap:7px;padding-bottom:8px}
   .groc-section-lbl{font-size:10px;color:var(--text2);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.8px;margin-top:6px;padding-bottom:2px;border-bottom:1px solid var(--border)}
   .groc-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;display:flex;align-items:center;gap:10px;transition:var(--transition);animation:slideIn .25s ease}
   .groc-item:hover{background:var(--surface2)}
@@ -328,6 +338,33 @@
   .groc-footer{padding:12px 20px 4px;display:flex;gap:8px}
   .groc-footer-btn{flex:1;padding:10px;border-radius:var(--radius-sm);font-size:12px;font-weight:700;background:var(--surface2);border:1px solid var(--border);color:var(--text2);transition:var(--transition)}
   .groc-footer-btn:hover{border-color:var(--accent3);color:var(--accent3);background:rgba(255,107,107,.08)}
+
+  /* bill detail card */
+  .bill-detail-card{background:var(--surface2);border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)}
+  .bill-store-row{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .bill-store-icon{font-size:22px}
+  .bill-store-name{font-size:15px;font-weight:800;flex:1}
+  .bill-store-date{font-size:11px;color:var(--text2);font-family:var(--font-mono)}
+  .bill-amount-row{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .bill-amount-lbl{font-size:11px;color:var(--text2);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.6px}
+  .bill-amount-val{font-size:22px;font-weight:800;color:var(--yellow)}
+  .bill-items-list{padding:8px 14px 12px;display:flex;flex-direction:column;gap:4px;max-height:150px;overflow-y:auto}
+  .bill-item-row{font-size:12px;color:var(--text2);display:flex;justify-content:space-between}
+  .bill-item-name{font-weight:600;color:var(--text)}
+  .bill-item-price{font-family:var(--font-mono);color:var(--yellow)}
+
+  /* expense history card */
+  .exp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;position:relative;overflow:hidden;animation:slideIn .25s ease}
+  .exp-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--yellow);border-radius:3px 0 0 3px}
+  .exp-card-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .exp-store{font-size:14px;font-weight:800;flex:1}
+  .exp-amount{font-size:16px;font-weight:800;color:var(--yellow)}
+  .exp-meta{display:flex;gap:8px;align-items:center}
+  .exp-date{font-size:11px;color:var(--text2);font-family:var(--font-mono)}
+  .exp-items-preview{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+  .exp-del{position:absolute;top:10px;right:10px;width:24px;height:24px;border:none;background:transparent;font-size:13px;cursor:pointer;opacity:0;transition:var(--transition);border-radius:5px;display:flex;align-items:center;justify-content:center}
+  .exp-card:hover .exp-del{opacity:1}
+  .exp-del:hover{background:rgba(255,107,107,.15)}
 
   /* ═══════════════════════════════════════════════
      🎙️  VOICE MODAL
@@ -698,6 +735,7 @@
 
 <!-- hidden file inputs -->
 <input type="file" id="grocPhotoInput" accept="image/*" capture="environment" onchange="handleGrocPhoto(event)" style="display:none" />
+<input type="file" id="billPhotoInput" accept="image/*" capture="environment" onchange="handleBillPhoto(event)"  style="display:none" />
 
 <!-- ══════════════════════════
      🛒 GROCERY PAGE
@@ -715,75 +753,129 @@
     </div>
   </div>
 
-  <!-- tab bar: Groceries | Veggies | All -->
+  <!-- 4 tabs -->
   <div class="groc-tabs">
-    <div class="groc-tab active" data-gtab="all"   onclick="setGrocTab('all')">All</div>
-    <div class="groc-tab"        data-gtab="grocery" onclick="setGrocTab('grocery')">🛍️ Grocery</div>
-    <div class="groc-tab"        data-gtab="veggie"  onclick="setGrocTab('veggie')">🥦 Veggies</div>
+    <div class="groc-tab active" data-gtab="all"      onclick="setGrocTab('all')">All</div>
+    <div class="groc-tab"        data-gtab="grocery"  onclick="setGrocTab('grocery')">🛍️ Grocery</div>
+    <div class="groc-tab"        data-gtab="veggie"   onclick="setGrocTab('veggie')">🥦 Veggies</div>
+    <div class="groc-tab"        data-gtab="expenses" onclick="setGrocTab('expenses')">🧾 Expenses</div>
   </div>
 
-  <!-- stats row -->
-  <div class="groc-stats">
-    <div class="groc-stat" style="--gs-color:var(--accent)"><div class="groc-stat-val" id="gStatTotal">0</div><div class="groc-stat-lbl">Total</div></div>
-    <div class="groc-stat" style="--gs-color:var(--accent3)"><div class="groc-stat-val" id="gStatLeft">0</div><div class="groc-stat-lbl">Remaining</div></div>
-    <div class="groc-stat" style="--gs-color:var(--accent4)"><div class="groc-stat-val" id="gStatBought">0</div><div class="groc-stat-lbl">Bought</div></div>
-  </div>
-
-  <!-- action buttons -->
-  <div class="groc-actions">
-    <button class="groc-btn scan" onclick="document.getElementById('grocPhotoInput').click()">
-      📷 Scan Photo
-    </button>
-    <button class="groc-btn add" onclick="toggleGrocForm()">
-      ✏️ Add Manual
-    </button>
-  </div>
-
-  <!-- scan result box -->
-  <div class="groc-scan-box" id="grocScanBox">
-    <!-- scanning spinner (shown while AI processes) -->
-    <div class="groc-scanning" id="grocScanning">
-      <div class="groc-spin-ring"></div>
-      <div class="groc-spin-lbl">Scanning image...</div>
-      <div class="groc-spin-sub">AI is detecting grocery & veggie items</div>
+  <!-- ── LIST VIEW (all / grocery / veggie) ── -->
+  <div id="grocListView">
+    <!-- stats -->
+    <div class="groc-stats">
+      <div class="groc-stat" style="--gs-color:var(--accent)">  <div class="groc-stat-val" id="gStatTotal">0</div>  <div class="groc-stat-lbl">Total</div></div>
+      <div class="groc-stat" style="--gs-color:var(--accent3)"> <div class="groc-stat-val" id="gStatLeft">0</div>   <div class="groc-stat-lbl">Remaining</div></div>
+      <div class="groc-stat" style="--gs-color:var(--accent4)"> <div class="groc-stat-val" id="gStatBought">0</div> <div class="groc-stat-lbl">Bought</div></div>
     </div>
-    <!-- results (shown after AI responds) -->
-    <div id="grocScanResults" style="display:none">
-      <img id="grocScanPreview" class="groc-scan-preview" />
-      <div class="groc-scan-body">
-        <div class="groc-scan-hdr">✨ AI Detected Items — select to add</div>
-        <div class="groc-detected-list" id="grocDetectedList"></div>
-        <button class="groc-add-sel-btn" onclick="addSelectedDetected()">➕ Add Selected Items</button>
+
+    <!-- action buttons -->
+    <div class="groc-actions">
+      <button class="groc-btn scan" onclick="document.getElementById('grocPhotoInput').click()">📷 Scan List</button>
+      <button class="groc-btn add"  onclick="toggleGrocForm()">✏️ Add Manual</button>
+    </div>
+
+    <!-- scan box -->
+    <div class="groc-scan-box" id="grocScanBox">
+      <div class="groc-scanning" id="grocScanning">
+        <div class="groc-spin-ring"></div>
+        <div class="groc-spin-lbl">Scanning image...</div>
+        <div class="groc-spin-sub">AI is detecting grocery & veggie items</div>
+      </div>
+      <div id="grocScanResults" style="display:none">
+        <img id="grocScanPreview" class="groc-scan-preview" />
+        <div class="groc-scan-body">
+          <div class="groc-scan-hdr">✨ AI Detected Items — select to add</div>
+          <div class="groc-detected-list" id="grocDetectedList"></div>
+          <button class="groc-add-sel-btn" onclick="addSelectedDetected()">➕ Add Selected Items</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- manual add form -->
-  <div class="groc-add-form" id="grocAddForm">
-    <div class="groc-add-row">
-      <input class="groc-input" id="grocItemName" placeholder="Item name (e.g. Milk, Tomatoes)" />
-      <input class="groc-qty" id="grocItemQty" placeholder="Qty" type="text" />
+    <!-- manual add form -->
+    <div class="groc-add-form" id="grocAddForm">
+      <div class="groc-add-row">
+        <input class="groc-input" id="grocItemName" placeholder="Item name (e.g. Milk, Tomatoes)" />
+        <input class="groc-qty"   id="grocItemQty"  placeholder="Qty" type="text" />
+      </div>
+      <div class="groc-type-row">
+        <button class="groc-type-btn sel" id="gtBtn-grocery" onclick="setGrocType('grocery')">🛍️ Grocery</button>
+        <button class="groc-type-btn"     id="gtBtn-veggie"  onclick="setGrocType('veggie')">🥦 Veggie</button>
+      </div>
+      <button class="groc-submit" onclick="addGrocItemManual()">➕ Add Item</button>
     </div>
-    <div class="groc-type-row">
-      <button class="groc-type-btn sel" id="gtBtn-grocery" onclick="setGrocType('grocery')">🛍️ Grocery</button>
-      <button class="groc-type-btn"    id="gtBtn-veggie"  onclick="setGrocType('veggie')">🥦 Veggie</button>
+
+    <div class="groc-list-wrap" id="grocList"></div>
+    <div class="groc-empty" id="grocEmpty">
+      <div class="groc-empty-icon">🛒</div>
+      <div class="groc-empty-title">Your list is empty</div>
+      <div class="groc-empty-sub">Tap <strong>Scan List</strong> to auto-detect items<br>or <strong>Add Manual</strong> to type them in.</div>
     </div>
-    <button class="groc-submit" onclick="addGrocItemManual()">➕ Add Item</button>
+
+    <div class="groc-footer">
+      <button class="groc-footer-btn" onclick="clearBoughtItems()">🧹 Remove Bought</button>
+      <button class="groc-footer-btn" onclick="clearAllGrocery()">🗑️ Clear All</button>
+    </div>
   </div>
 
-  <!-- list -->
-  <div class="groc-list-wrap" id="grocList"></div>
-  <div class="groc-empty" id="grocEmpty">
-    <div class="groc-empty-icon">🛒</div>
-    <div class="groc-empty-title">Your list is empty</div>
-    <div class="groc-empty-sub">Tap <strong>Scan Photo</strong> to auto-detect items<br>or <strong>Add Manual</strong> to type them in.</div>
+  <!-- ── EXPENSES VIEW ── -->
+  <div id="grocExpView" style="display:none">
+
+    <!-- expense summary stats -->
+    <div class="groc-stats" style="grid-template-columns:repeat(3,1fr)">
+      <div class="groc-stat" style="--gs-color:var(--yellow)">   <div class="groc-stat-val" id="expStatTotal">₹0</div>   <div class="groc-stat-lbl">This Month</div></div>
+      <div class="groc-stat" style="--gs-color:var(--accent2)">  <div class="groc-stat-val" id="expStatCount">0</div>    <div class="groc-stat-lbl">Bills</div></div>
+      <div class="groc-stat" style="--gs-color:var(--accent4)">  <div class="groc-stat-val" id="expStatAvg">₹0</div>     <div class="groc-stat-lbl">Avg Bill</div></div>
+    </div>
+
+    <!-- scan bill button -->
+    <div class="groc-actions">
+      <button class="groc-btn scan" style="background:linear-gradient(135deg,rgba(255,209,102,.15),rgba(244,132,95,.1));border-color:rgba(255,209,102,.4);color:var(--yellow)"
+              onclick="document.getElementById('billPhotoInput').click()">
+        🧾 Scan Bill / Receipt
+      </button>
+    </div>
+
+    <!-- bill scanning spinner -->
+    <div class="groc-scan-box" id="billScanBox">
+      <div class="groc-scanning" id="billScanning">
+        <div class="groc-spin-ring" style="border-top-color:var(--yellow)"></div>
+        <div class="groc-spin-lbl">Reading bill...</div>
+        <div class="groc-spin-sub">AI is extracting store, amount & items</div>
+      </div>
+      <!-- bill result card -->
+      <div id="billScanResult" style="display:none">
+        <img id="billPreview" class="groc-scan-preview" />
+        <div class="groc-scan-body">
+          <div class="groc-scan-hdr" style="color:var(--yellow)">🧾 Bill Details</div>
+          <div class="bill-detail-card" id="billDetailCard"></div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="groc-add-sel-btn" style="background:linear-gradient(135deg,var(--yellow),var(--orange));flex:1" onclick="saveBillExpense()">💾 Save Expense</button>
+            <button onclick="document.getElementById('billScanBox').classList.remove('visible')"
+                    style="padding:11px 14px;border-radius:var(--radius-sm);background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- expense list -->
+    <div style="padding:0 20px">
+      <div class="groc-section-lbl" style="margin-top:0">Recent Expenses</div>
+    </div>
+    <div class="groc-list-wrap" id="expenseList" style="margin-top:8px"></div>
+    <div class="groc-empty" id="expenseEmpty">
+      <div class="groc-empty-icon">🧾</div>
+      <div class="groc-empty-title">No expenses yet</div>
+      <div class="groc-empty-sub">After buying groceries,<br>tap <strong>Scan Bill</strong> to record your spending.</div>
+    </div>
+
+    <div class="groc-footer">
+      <button class="groc-footer-btn" onclick="clearAllExpenses()">🗑️ Clear Expenses</button>
+    </div>
   </div>
 
-  <div class="groc-footer">
-    <button class="groc-footer-btn" onclick="clearBoughtItems()">🧹 Remove Bought</button>
-    <button class="groc-footer-btn" onclick="clearAllGrocery()" style="--ac:var(--accent3)">🗑️ Clear All</button>
-  </div>
-</div>
+</div><!-- end grocery page -->
 
 </div>
 
@@ -798,7 +890,39 @@
 </nav>
 
 <script>
-/* ══════════ STATE ══════════ */
+/* ══════════════════════════════════════════
+   WEBVIEW / WEBINTOAPP COMPATIBILITY
+   ─────────────────────────────────────────
+   Fixes for Android WebView wrapped apps:
+   - Touch scrolling on all pages
+   - Mic permission via getUserMedia fallback
+   - Detect WebView environment
+══════════════════════════════════════════ */
+(function(){
+  // Enable touch scrolling on dynamically shown elements
+  document.addEventListener('touchstart', function(){}, {passive:true});
+
+  // Detect if running inside WebView (no window.chrome.runtime = WebView, not Chrome)
+  const isWebView = !window.chrome || !window.chrome.runtime;
+  if (isWebView) {
+    // Force solid backgrounds (backdrop-filter unreliable in WebView)
+    document.documentElement.style.setProperty('--nav-bg','#111521');
+  }
+
+  // Pre-request mic permission on load so WebView prompts user early
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        // Got permission — stop the stream immediately, we just needed the grant
+        stream.getTracks().forEach(t => t.stop());
+      })
+      .catch(() => {
+        // User denied or not yet prompted — will show error on first use
+      });
+  }
+})();
+
+
 let reminders = JSON.parse(localStorage.getItem('slr_reminders') || '[]');
 let currentPriority = 'medium';
 let currentCat = 'all';
@@ -1014,14 +1138,15 @@ let vParsed = null;       // last parsed result
 let vAnimFrame = null;    // waveform RAF handle
 let vLang = 'en-IN';      // active recognition language
 
-/* ── init recognition ── */
+/* ── init recognition (builds a fresh instance each call) ── */
 function initVoice() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
     const sub = document.getElementById('voiceSettingSub');
-    if (sub) sub.textContent = 'Not supported — use Chrome/Edge';
+    if (sub) sub.textContent = 'Not supported — use Chrome or Samsung Browser';
     return;
   }
+  // Always create a fresh instance — reusing a stopped instance causes silent failures
   SRec = new SR();
   SRec.continuous = false;
   SRec.interimResults = true;
@@ -1057,7 +1182,15 @@ function initVoice() {
 
   SRec.onerror = (e) => {
     vRecording = false; stopWave();
-    const msg = { 'not-allowed': 'Mic permission denied', 'no-speech': 'No speech detected — try again', 'network': 'Network error' }[e.error] || 'Error: ' + e.error;
+    const msgs = {
+      'not-allowed':    'Mic blocked — tap the 🔒 icon in address bar and allow microphone',
+      'no-speech':      'No speech heard — please try again',
+      'network':        'Network error — check connection',
+      'audio-capture':  'No microphone found on this device',
+      'service-not-allowed': 'Mic permission denied by browser',
+      'aborted':        'Mic stopped — tap Start to try again',
+    };
+    const msg = msgs[e.error] || ('Mic error: ' + e.error);
     setVState('error', msg);
     resetVoiceBtns();
     showToast(msg, 'error');
@@ -1124,21 +1257,48 @@ function closeVoiceModal() {
 
 /* ── toggle recording ── */
 function toggleVoiceRecording() {
-  if (!SRec) { showToast('Voice input not supported. Use Chrome or Edge.', 'error'); return; }
+  if (!( window.SpeechRecognition || window.webkitSpeechRecognition )) {
+    showToast('Voice not supported — open in Chrome or Samsung Browser', 'error');
+    return;
+  }
   if (vRecording) {
-    SRec.stop();
-  } else {
+    if (SRec) { try { SRec.stop(); } catch(e) {} }
+    vRecording = false; stopWave(); resetVoiceBtns();
+    return;
+  }
+  // Request mic permission explicitly first (needed for WebView / WebIntoApp)
+  const startRec = () => {
     vTranscript = ''; vParsed = null;
     resetVoiceUI();
+    initVoice();
     try {
-      SRec.lang = vLang;
       SRec.start();
       document.getElementById('voiceMicBtn').classList.add('recording');
       document.getElementById('vMicIcon').textContent = '⏹️';
       document.getElementById('vMicLabel').textContent = 'Stop';
     } catch(e) {
-      setVState('error', 'Mic could not start');
+      const msg = e.name === 'NotAllowedError'
+        ? 'Mic blocked — allow microphone in app settings'
+        : 'Mic error: ' + e.message;
+      setVState('error', msg);
+      showToast(msg, 'error');
     }
+  };
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        stream.getTracks().forEach(t => t.stop()); // release stream, SpeechRecognition opens its own
+        startRec();
+      })
+      .catch(err => {
+        const msg = err.name === 'NotAllowedError'
+          ? 'Mic permission denied — go to App Settings → Permissions → Microphone → Allow'
+          : 'Mic error: ' + err.message;
+        setVState('error', msg);
+        showToast(msg, 'error');
+      });
+  } else {
+    startRec();
   }
 }
 
@@ -1398,7 +1558,10 @@ function grocPersist() { localStorage.setItem('slr_grocery', JSON.stringify(groc
 function setGrocTab(tab) {
   grocTab = tab;
   document.querySelectorAll('.groc-tab').forEach(t => t.classList.toggle('active', t.dataset.gtab === tab));
-  renderGrocery();
+  const isExp = tab === 'expenses';
+  document.getElementById('grocListView').style.display = isExp ? 'none' : 'block';
+  document.getElementById('grocExpView').style.display  = isExp ? 'block' : 'none';
+  if (isExp) renderExpenses(); else renderGrocery();
 }
 
 /* ── manual form toggle ── */
@@ -1523,7 +1686,6 @@ async function handleGrocPhoto(event) {
   event.target.value = '';
   if (!file) return;
 
-  // Show scan box with spinner
   const scanBox = document.getElementById('grocScanBox');
   const scanning = document.getElementById('grocScanning');
   const results  = document.getElementById('grocScanResults');
@@ -1534,18 +1696,16 @@ async function handleGrocPhoto(event) {
   results.style.display = 'none';
   grocDetected = [];
 
-  // Read as base64
-  const base64 = await new Promise((res, rej) => {
-    const reader = new FileReader();
-    reader.onload = () => res(reader.result.split(',')[1]);
-    reader.onerror = rej;
-    reader.readAsDataURL(file);
-  });
-
-  // Show image preview
-  preview.src = 'data:' + file.type + ';base64,' + base64;
-
   try {
+    // ── Step 1: resize + compress image on canvas (max 1024px, JPEG quality 0.7)
+    // Camera photos can be 4-8 MB — this reduces them to ~100-200 KB
+    const compressed = await compressImage(file, 1024, 0.72);
+    const { base64, mimeType } = compressed;
+
+    // Show preview
+    preview.src = 'data:' + mimeType + ';base64,' + base64;
+
+    // ── Step 2: call Claude Vision API
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -1559,47 +1719,47 @@ async function handleGrocPhoto(event) {
         messages: [{
           role: 'user',
           content: [
-            {
-              type: 'image',
-              source: { type: 'base64', media_type: file.type, data: base64 }
-            },
-            {
-              type: 'text',
-              text: `Look at this image and identify all grocery items and vegetables/fruits you can see.
-Return ONLY a JSON array (no markdown, no explanation) like this:
-[{"name":"Tomatoes","qty":"500g","type":"veggie"},{"name":"Bread","qty":"1 loaf","type":"grocery"}]
+            { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64 } },
+            { type: 'text', text: `Look at this image and identify all grocery items and vegetables/fruits visible.
+Return ONLY a valid JSON array, no markdown, no explanation:
+[{"name":"Tomatoes","qty":"500g","type":"veggie"},{"name":"Bread","qty":"1","type":"grocery"}]
 Rules:
-- type must be exactly "veggie" for vegetables/fruits/greens, "grocery" for everything else
-- qty should be estimated from the image or "1" if unknown
-- name should be short and clear (e.g. "Spinach", "Milk", "Rice")
-- Include ALL visible items, up to 20
-- Return only the JSON array, nothing else`
-            }
+- "type": "veggie" for vegetables/fruits/greens, "grocery" for everything else
+- "qty": estimate from image or use "1"
+- "name": short and clear (e.g. "Spinach", "Milk", "Rice")
+- List up to 20 items
+- Return ONLY the JSON array` }
           ]
         }]
       })
     });
 
+    // ── Step 3: parse response — show real error if API fails
     const data = await response.json();
+
+    if (data.error) {
+      throw new Error(data.error.message || JSON.stringify(data.error));
+    }
+
     const rawText = data.content?.find(b => b.type === 'text')?.text || '[]';
 
-    // Parse JSON (strip any accidental markdown fences)
     let parsed;
     try {
-      const clean = rawText.replace(/```json|```/g, '').trim();
-      parsed = JSON.parse(clean);
+      const clean = rawText.replace(/```json|```/gi, '').trim();
+      // extract first [...] block in case model added any text
+      const match = clean.match(/\[[\s\S]*\]/);
+      parsed = JSON.parse(match ? match[0] : clean);
       if (!Array.isArray(parsed)) throw new Error('not array');
     } catch {
-      throw new Error('Could not parse AI response');
+      throw new Error('AI returned unexpected format — try again');
     }
 
     grocDetected = parsed.map((item, idx) => ({ ...item, _id: 'det_' + idx, checked: true }));
 
-    // Render detected list
     const detList = document.getElementById('grocDetectedList');
     detList.innerHTML = '';
     if (!grocDetected.length) {
-      detList.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:12px">No items detected in this image</div>';
+      detList.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:12px">No items detected — try a clearer photo</div>';
     } else {
       grocDetected.forEach(item => {
         const row = document.createElement('div');
@@ -1608,7 +1768,7 @@ Rules:
           <input type="checkbox" id="det_${item._id}" checked onchange="toggleDetected('${item._id}',this.checked)" />
           <span class="groc-det-name">${escHtml(item.name)}</span>
           <span class="groc-det-qty">${escHtml(item.qty||'1')}</span>
-          <span class="groc-det-tag ${item.type}">${item.type === 'veggie' ? '🥦 Veggie' : '🛍️ Grocery'}</span>`;
+          <span class="groc-det-tag ${item.type==='veggie'?'veggie':'grocery'}">${item.type==='veggie'?'🥦 Veggie':'🛍️ Grocery'}</span>`;
         detList.appendChild(row);
       });
     }
@@ -1621,7 +1781,35 @@ Rules:
     scanning.classList.remove('visible');
     scanBox.classList.remove('visible');
     showToast('Scan failed: ' + err.message, 'error');
+    console.error('Grocery scan error:', err);
   }
+}
+
+/* ── Image compressor ── */
+function compressImage(file, maxPx, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      // Scale down if larger than maxPx
+      if (width > maxPx || height > maxPx) {
+        if (width > height) { height = Math.round(height * maxPx / width); width = maxPx; }
+        else { width = Math.round(width * maxPx / height); height = maxPx; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      const mimeType = 'image/jpeg';
+      const dataUrl = canvas.toDataURL(mimeType, quality);
+      const base64 = dataUrl.split(',')[1];
+      resolve({ base64, mimeType });
+    };
+    img.onerror = () => reject(new Error('Could not load image'));
+    img.src = url;
+  });
 }
 
 function toggleDetected(id, checked) {
@@ -1644,7 +1832,164 @@ function addSelectedDetected() {
 
 /* init grocery on page load */
 window.addEventListener('DOMContentLoaded', () => { renderGrocery(); }, { once: false });
-// (renderGrocery is safe to call multiple times)
+
+/* ═══════════════════════════════════════════
+   🧾  BILL / EXPENSE ENGINE
+═══════════════════════════════════════════ */
+let expenses = JSON.parse(localStorage.getItem('slr_expenses') || '[]');
+let pendingBill = null;
+
+function expPersist() { localStorage.setItem('slr_expenses', JSON.stringify(expenses)); }
+
+function renderExpenses() {
+  const list  = document.getElementById('expenseList');
+  const empty = document.getElementById('expenseEmpty');
+  const now   = new Date();
+  const thisMonth = expenses.filter(e => {
+    const d = new Date(e.date);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  });
+  const monthTotal = thisMonth.reduce((s,e) => s + (parseFloat(e.amount)||0), 0);
+  const avg = expenses.length ? expenses.reduce((s,e)=>s+(parseFloat(e.amount)||0),0)/expenses.length : 0;
+  document.getElementById('expStatTotal').textContent = '₹' + monthTotal.toFixed(0);
+  document.getElementById('expStatCount').textContent = expenses.length;
+  document.getElementById('expStatAvg').textContent   = '₹' + avg.toFixed(0);
+
+  list.innerHTML = '';
+  if (!expenses.length) { empty.classList.add('visible'); return; }
+  empty.classList.remove('visible');
+  [...expenses].reverse().forEach(exp => {
+    const card = document.createElement('div');
+    card.className = 'exp-card';
+    const itemPreview = (exp.items||[]).slice(0,4).map(i=>i.name).join(', ') || '';
+    card.innerHTML = `
+      <div class="exp-card-top">
+        <span style="font-size:20px">🧾</span>
+        <span class="exp-store">${escHtml(exp.store)}</span>
+        <span class="exp-amount">₹${parseFloat(exp.amount||0).toFixed(2)}</span>
+      </div>
+      <div class="exp-meta">
+        <span class="exp-date">📅 ${new Date(exp.date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</span>
+        ${exp.items?.length ? `<span class="exp-date">· ${exp.items.length} items</span>` : ''}
+      </div>
+      ${itemPreview ? `<div class="exp-items-preview">${escHtml(itemPreview)}</div>` : ''}
+      <button class="exp-del" onclick="deleteExpense('${exp.id}')">🗑️</button>`;
+    list.appendChild(card);
+  });
+}
+
+function deleteExpense(id) {
+  expenses = expenses.filter(e => e.id !== id);
+  expPersist(); renderExpenses();
+}
+function clearAllExpenses() {
+  if (!expenses.length) return;
+  if (!confirm('Clear all expense records?')) return;
+  expenses = []; expPersist(); renderExpenses();
+  showToast('Expenses cleared', 'info');
+}
+
+async function handleBillPhoto(event) {
+  const file = event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+
+  const scanBox  = document.getElementById('billScanBox');
+  const scanning = document.getElementById('billScanning');
+  const result   = document.getElementById('billScanResult');
+  const preview  = document.getElementById('billPreview');
+
+  scanBox.classList.add('visible');
+  scanning.classList.add('visible');
+  result.style.display = 'none';
+  pendingBill = null;
+
+  try {
+    const { base64, mimeType } = await compressImage(file, 1200, 0.82);
+    preview.src = 'data:' + mimeType + ';base64,' + base64;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64 } },
+            { type: 'text', text: `This is a grocery or shopping bill/receipt. Extract details and return ONLY a JSON object (no markdown):
+{"store":"shop name or Unknown Store","date":"YYYY-MM-DD or today","total":"final amount as number string","items":[{"name":"item","qty":"1","price":"price as number string"}]}
+- store: supermarket / shop name shown on bill
+- date: bill date in YYYY-MM-DD, today if not visible
+- total: grand total / final payable amount
+- items: all individual line items
+Return ONLY the JSON object.` }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message || 'API error');
+    const rawText = data.content?.find(b => b.type === 'text')?.text || '{}';
+    let parsed;
+    try {
+      const clean = rawText.replace(/```json|```/gi,'').trim();
+      const match = clean.match(/\{[\s\S]*\}/);
+      parsed = JSON.parse(match ? match[0] : clean);
+    } catch { throw new Error('Could not read bill — try a clearer photo'); }
+    if (!parsed.date || parsed.date.includes('YYYY')) parsed.date = new Date().toISOString().split('T')[0];
+    pendingBill = parsed;
+
+    const card = document.getElementById('billDetailCard');
+    const itemRows = (parsed.items||[]).map(i =>
+      `<div class="bill-item-row"><span class="bill-item-name">${escHtml(i.name)} <span style="color:var(--text3);font-weight:400">×${i.qty||1}</span></span><span class="bill-item-price">₹${parseFloat(i.price||0).toFixed(2)}</span></div>`
+    ).join('');
+    card.innerHTML = `
+      <div class="bill-store-row">
+        <span class="bill-store-icon">🏪</span>
+        <span class="bill-store-name">${escHtml(parsed.store||'Unknown Store')}</span>
+        <span class="bill-store-date">${new Date(parsed.date+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</span>
+      </div>
+      <div class="bill-amount-row">
+        <span class="bill-amount-lbl">Total Spent</span>
+        <span class="bill-amount-val">₹${parseFloat(parsed.total||0).toFixed(2)}</span>
+      </div>
+      ${itemRows ? `<div class="bill-items-list">${itemRows}</div>` : ''}`;
+
+    scanning.classList.remove('visible');
+    result.style.display = 'block';
+    showToast('Bill read ✅', 'success');
+
+  } catch(err) {
+    scanning.classList.remove('visible');
+    scanBox.classList.remove('visible');
+    showToast('Bill scan failed: ' + err.message, 'error');
+  }
+}
+
+function saveBillExpense() {
+  if (!pendingBill) return;
+  expenses.push({
+    id:      genId(),
+    store:   pendingBill.store  || 'Unknown Store',
+    date:    pendingBill.date   || new Date().toISOString().split('T')[0],
+    amount:  pendingBill.total  || '0',
+    items:   pendingBill.items  || [],
+    savedAt: new Date().toISOString()
+  });
+  expPersist();
+  document.getElementById('billScanBox').classList.remove('visible');
+  pendingBill = null;
+  renderExpenses();
+  showToast('Expense saved 💾', 'success');
+}
+
 function fabAction() {
   const activePage = document.querySelector('.page.active')?.id;
   if (activePage === 'page-grocery') { toggleGrocForm(); }
