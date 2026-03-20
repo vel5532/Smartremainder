@@ -240,6 +240,95 @@
   .page{display:none}.page.active{display:block}
   @media(min-width:481px){.app-wrapper{border-left:1px solid var(--border);border-right:1px solid var(--border)}}
 
+  /* ═══════════════════════════════
+     🛒  GROCERY & VEGGIES
+  ═══════════════════════════════ */
+  .groc-tabs{display:flex;padding:0 20px;margin-bottom:16px}
+  .groc-tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:700;border:1px solid var(--border);cursor:pointer;transition:var(--transition);background:var(--surface2);color:var(--text2)}
+  .groc-tab:first-child{border-radius:var(--radius-sm) 0 0 var(--radius-sm)}
+  .groc-tab:last-child{border-radius:0 var(--radius-sm) var(--radius-sm) 0;border-left:none}
+  .groc-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 14px rgba(79,138,255,.3)}
+
+  .groc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 20px;margin-bottom:16px}
+  .groc-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;text-align:center;position:relative;overflow:hidden}
+  .groc-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gs-color,var(--accent))}
+  .groc-stat-val{font-size:22px;font-weight:800}
+  .groc-stat-lbl{font-size:9px;color:var(--text2);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+
+  .groc-actions{padding:0 20px;display:flex;gap:8px;margin-bottom:14px}
+  .groc-btn{flex:1;padding:12px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;transition:var(--transition);cursor:pointer}
+  .groc-btn.scan{background:linear-gradient(135deg,rgba(162,89,255,.18),rgba(79,138,255,.12));border:1px solid rgba(162,89,255,.4);color:var(--accent2)}
+  .groc-btn.scan:hover{background:linear-gradient(135deg,rgba(162,89,255,.28),rgba(79,138,255,.2))}
+  .groc-btn.add{background:rgba(79,138,255,.1);border:1px solid rgba(79,138,255,.3);color:var(--accent)}
+  .groc-btn.add:hover{background:rgba(79,138,255,.18)}
+
+  .groc-scan-box{margin:0 20px 14px;background:var(--surface);border:1px solid rgba(162,89,255,.3);border-radius:var(--radius);overflow:hidden;display:none;animation:fadeUp .35s ease forwards}
+  .groc-scan-box.visible{display:block}
+  .groc-scan-preview{width:100%;max-height:160px;object-fit:cover;display:block}
+  .groc-scan-body{padding:14px}
+  .groc-scan-hdr{font-size:11px;font-family:var(--font-mono);color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+  .groc-detected-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:220px;overflow-y:auto}
+  .groc-det-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)}
+  .groc-det-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+  .groc-det-name{flex:1;font-size:13px;font-weight:600}
+  .groc-det-qty{font-size:11px;color:var(--text2);font-family:var(--font-mono)}
+  .groc-det-tag{font-size:10px;padding:2px 7px;border-radius:99px;font-family:var(--font-mono);font-weight:700}
+  .groc-det-tag.grocery{background:rgba(79,138,255,.12);color:var(--accent)}
+  .groc-det-tag.veggie{background:rgba(0,214,143,.12);color:var(--accent4)}
+  .groc-add-sel-btn{width:100%;padding:11px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700;transition:var(--transition)}
+  .groc-add-sel-btn:hover{opacity:.9}
+
+  .groc-scanning{display:none;flex-direction:column;align-items:center;padding:28px;gap:10px}
+  .groc-scanning.visible{display:flex}
+  .groc-spin-ring{width:52px;height:52px;border-radius:50%;border:3px solid var(--border);border-top-color:var(--accent2);animation:spin 1s linear infinite}
+  .groc-spin-lbl{font-size:13px;font-weight:700;color:var(--text)}
+  .groc-spin-sub{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
+
+  .groc-add-form{margin:0 20px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;display:none;animation:fadeUp .3s ease}
+  .groc-add-form.visible{display:block}
+  .groc-add-row{display:flex;gap:8px;margin-bottom:8px}
+  .groc-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:14px}
+  .groc-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,138,255,.1)}
+  .groc-input::placeholder{color:var(--text3)}
+  .groc-qty{width:70px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 8px;color:var(--text);font-size:13px;text-align:center}
+  .groc-qty:focus{border-color:var(--accent)}
+  .groc-type-row{display:flex;gap:6px;margin-bottom:10px}
+  .groc-type-btn{flex:1;padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border);font-size:12px;font-weight:700;cursor:pointer;transition:var(--transition);background:var(--surface2);color:var(--text2)}
+  .groc-type-btn.sel{border-color:var(--accent);background:rgba(79,138,255,.12);color:var(--accent)}
+  .groc-type-btn.sel.veggie-sel{border-color:var(--accent4);background:rgba(0,214,143,.1);color:var(--accent4)}
+  .groc-submit{width:100%;padding:11px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700;transition:var(--transition)}
+  .groc-submit:hover{opacity:.9}
+
+  .groc-list-wrap{padding:0 20px;display:flex;flex-direction:column;gap:7px}
+  .groc-section-lbl{font-size:10px;color:var(--text2);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.8px;margin-top:6px;padding-bottom:2px;border-bottom:1px solid var(--border)}
+  .groc-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;display:flex;align-items:center;gap:10px;transition:var(--transition);animation:slideIn .25s ease}
+  .groc-item:hover{background:var(--surface2)}
+  .groc-item.bought{opacity:.4}
+  .groc-item.bought .groc-item-name{text-decoration:line-through;color:var(--text2)}
+  .groc-cb{width:20px;height:20px;border-radius:5px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition)}
+  .groc-cb.chk{background:var(--accent4);border-color:var(--accent4)}
+  .groc-cb.chk::after{content:'✓';color:#fff;font-size:11px;font-weight:900}
+  .groc-item-info{flex:1;min-width:0}
+  .groc-item-name{font-size:14px;font-weight:700}
+  .groc-item-sub{display:flex;gap:5px;align-items:center;margin-top:3px}
+  .groc-item-qty{font-size:10px;color:var(--text2);font-family:var(--font-mono)}
+  .groc-src-tag{font-size:10px;padding:2px 6px;border-radius:99px;font-family:var(--font-mono);font-weight:700}
+  .groc-src-tag.ai{background:rgba(162,89,255,.12);color:var(--accent2)}
+  .groc-src-tag.manual{background:rgba(79,138,255,.08);color:var(--accent)}
+  .groc-del{width:26px;height:26px;border:none;background:transparent;font-size:14px;cursor:pointer;opacity:0;transition:var(--transition);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .groc-item:hover .groc-del{opacity:1}
+  .groc-del:hover{background:rgba(255,107,107,.15)}
+
+  .groc-empty{text-align:center;padding:36px 20px;display:none}
+  .groc-empty.visible{display:block}
+  .groc-empty-icon{font-size:44px;opacity:.35;margin-bottom:10px}
+  .groc-empty-title{font-size:15px;font-weight:700;margin-bottom:6px}
+  .groc-empty-sub{font-size:12px;color:var(--text2);line-height:1.6}
+
+  .groc-footer{padding:12px 20px 4px;display:flex;gap:8px}
+  .groc-footer-btn{flex:1;padding:10px;border-radius:var(--radius-sm);font-size:12px;font-weight:700;background:var(--surface2);border:1px solid var(--border);color:var(--text2);transition:var(--transition)}
+  .groc-footer-btn:hover{border-color:var(--accent3);color:var(--accent3);background:rgba(255,107,107,.08)}
+
   /* ═══════════════════════════════════════════════
      🎙️  VOICE MODAL
   ═══════════════════════════════════════════════ */
@@ -594,13 +683,105 @@
 
 </div>
 
-<button class="fab" onclick="openAddDrawer()">+</button>
+<!-- hidden file inputs -->
+<input type="file" id="grocPhotoInput" accept="image/*" capture="environment" onchange="handleGrocPhoto(event)" style="display:none" />
+
+<!-- ══════════════════════════
+     🛒 GROCERY PAGE
+══════════════════════════ -->
+<div class="page" id="page-grocery">
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">
+        <div class="logo-icon" style="background:linear-gradient(135deg,#00d68f,#4f8aff)">🛒</div>
+        <div><div class="logo-text">Grocery List</div><div class="logo-sub">& VEGGIES</div></div>
+      </div>
+      <div class="header-actions">
+        <div class="icon-btn" onclick="clearBoughtItems()" title="Clear bought items" style="font-size:14px">🧹</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- tab bar: Groceries | Veggies | All -->
+  <div class="groc-tabs">
+    <div class="groc-tab active" data-gtab="all"   onclick="setGrocTab('all')">All</div>
+    <div class="groc-tab"        data-gtab="grocery" onclick="setGrocTab('grocery')">🛍️ Grocery</div>
+    <div class="groc-tab"        data-gtab="veggie"  onclick="setGrocTab('veggie')">🥦 Veggies</div>
+  </div>
+
+  <!-- stats row -->
+  <div class="groc-stats">
+    <div class="groc-stat" style="--gs-color:var(--accent)"><div class="groc-stat-val" id="gStatTotal">0</div><div class="groc-stat-lbl">Total</div></div>
+    <div class="groc-stat" style="--gs-color:var(--accent3)"><div class="groc-stat-val" id="gStatLeft">0</div><div class="groc-stat-lbl">Remaining</div></div>
+    <div class="groc-stat" style="--gs-color:var(--accent4)"><div class="groc-stat-val" id="gStatBought">0</div><div class="groc-stat-lbl">Bought</div></div>
+  </div>
+
+  <!-- action buttons -->
+  <div class="groc-actions">
+    <button class="groc-btn scan" onclick="document.getElementById('grocPhotoInput').click()">
+      📷 Scan Photo
+    </button>
+    <button class="groc-btn add" onclick="toggleGrocForm()">
+      ✏️ Add Manual
+    </button>
+  </div>
+
+  <!-- scan result box -->
+  <div class="groc-scan-box" id="grocScanBox">
+    <!-- scanning spinner (shown while AI processes) -->
+    <div class="groc-scanning" id="grocScanning">
+      <div class="groc-spin-ring"></div>
+      <div class="groc-spin-lbl">Scanning image...</div>
+      <div class="groc-spin-sub">AI is detecting grocery & veggie items</div>
+    </div>
+    <!-- results (shown after AI responds) -->
+    <div id="grocScanResults" style="display:none">
+      <img id="grocScanPreview" class="groc-scan-preview" />
+      <div class="groc-scan-body">
+        <div class="groc-scan-hdr">✨ AI Detected Items — select to add</div>
+        <div class="groc-detected-list" id="grocDetectedList"></div>
+        <button class="groc-add-sel-btn" onclick="addSelectedDetected()">➕ Add Selected Items</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- manual add form -->
+  <div class="groc-add-form" id="grocAddForm">
+    <div class="groc-add-row">
+      <input class="groc-input" id="grocItemName" placeholder="Item name (e.g. Milk, Tomatoes)" />
+      <input class="groc-qty" id="grocItemQty" placeholder="Qty" type="text" />
+    </div>
+    <div class="groc-type-row">
+      <button class="groc-type-btn sel" id="gtBtn-grocery" onclick="setGrocType('grocery')">🛍️ Grocery</button>
+      <button class="groc-type-btn"    id="gtBtn-veggie"  onclick="setGrocType('veggie')">🥦 Veggie</button>
+    </div>
+    <button class="groc-submit" onclick="addGrocItemManual()">➕ Add Item</button>
+  </div>
+
+  <!-- list -->
+  <div class="groc-list-wrap" id="grocList"></div>
+  <div class="groc-empty" id="grocEmpty">
+    <div class="groc-empty-icon">🛒</div>
+    <div class="groc-empty-title">Your list is empty</div>
+    <div class="groc-empty-sub">Tap <strong>Scan Photo</strong> to auto-detect items<br>or <strong>Add Manual</strong> to type them in.</div>
+  </div>
+
+  <div class="groc-footer">
+    <button class="groc-footer-btn" onclick="clearBoughtItems()">🧹 Remove Bought</button>
+    <button class="groc-footer-btn" onclick="clearAllGrocery()" style="--ac:var(--accent3)">🗑️ Clear All</button>
+  </div>
+</div>
+
+</div>
+
+<button class="fab" onclick="fabAction()" id="mainFab">+</button>
 
 <nav class="bottom-nav">
-  <div class="nav-item active" id="nav-home" onclick="switchPage('home')"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
-  <div class="nav-item" id="nav-voice" onclick="openVoiceModal()"><div class="nav-icon">🎙️</div><div class="nav-label">Voice</div></div>
-  <div class="nav-item" id="nav-cloud" onclick="switchPage('cloud')"><div class="nav-icon">☁️</div><div class="nav-label">Cloud</div></div>
-  <div class="nav-item" id="nav-settings" onclick="switchPage('settings')"><div class="nav-icon">⚙️</div><div class="nav-label">Settings</div></div>
+  <div class="nav-item active" id="nav-home"    onclick="switchPage('home')">   <div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+  <div class="nav-item"        id="nav-voice"   onclick="openVoiceModal()">     <div class="nav-icon">🎙️</div><div class="nav-label">Voice</div></div>
+  <div class="nav-item"        id="nav-grocery" onclick="switchPage('grocery')"><div class="nav-icon">🛒</div><div class="nav-label">Shop</div></div>
+  <div class="nav-item"        id="nav-cloud"   onclick="switchPage('cloud')">  <div class="nav-icon">☁️</div><div class="nav-label">Cloud</div></div>
+  <div class="nav-item"        id="nav-settings"onclick="switchPage('settings')"><div class="nav-icon">⚙️</div><div class="nav-label">More</div></div>
 </nav>
 
 <script>
@@ -615,7 +796,7 @@ let scheduledAlerts = {};
 window.addEventListener('DOMContentLoaded', () => {
   renderAll(); buildCalStrip(); loadScriptUrl();
   checkNotifPermission(); scheduleAllNotifications();
-  checkAutoSync(); initVoice();
+  checkAutoSync(); initVoice(); renderGrocery();
   setInterval(checkOverdue, 60000);
   // Auto-backup on every open if URL is configured
   if (getScriptUrl()) setTimeout(() => backupToCloud(true), 1500);
@@ -883,8 +1064,10 @@ function closeVoiceModal() {
   document.getElementById('voiceModal').classList.remove('open');
   document.body.style.overflow = '';
   stopWave();
+  // Restore nav highlight to whichever page is actually active
+  const activePage = document.querySelector('.page.active')?.id?.replace('page-','');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('nav-home').classList.add('active');
+  if (activePage) { const nav = document.getElementById('nav-'+activePage); if(nav) nav.classList.add('active'); }
 }
 
 /* ── toggle recording ── */
@@ -1141,6 +1324,274 @@ function startWave() {
 function stopWave() {
   if (vAnimFrame) cancelAnimationFrame(vAnimFrame);
   document.querySelectorAll('.wave-bar').forEach(b => { b.style.height='4px'; b.style.opacity='0.4'; });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   🛒  GROCERY & VEGGIES ENGINE
+   ─────────────────────────────────────────────────────────────
+   • Manual add with type (grocery / veggie) + quantity
+   • Photo scan → Claude Vision API → auto-detects items
+   • Checkbox buy-off, per-tab filter, clear bought
+═══════════════════════════════════════════════════════════════ */
+let grocItems = JSON.parse(localStorage.getItem('slr_grocery') || '[]');
+let grocTab = 'all';       // 'all' | 'grocery' | 'veggie'
+let grocType = 'grocery';  // active type in manual form
+let grocDetected = [];     // items returned by AI scan
+
+/* ── persist ── */
+function grocPersist() { localStorage.setItem('slr_grocery', JSON.stringify(grocItems)); }
+
+/* ── tab switch ── */
+function setGrocTab(tab) {
+  grocTab = tab;
+  document.querySelectorAll('.groc-tab').forEach(t => t.classList.toggle('active', t.dataset.gtab === tab));
+  renderGrocery();
+}
+
+/* ── manual form toggle ── */
+function toggleGrocForm() {
+  const form = document.getElementById('grocAddForm');
+  form.classList.toggle('visible');
+  if (form.classList.contains('visible')) document.getElementById('grocItemName').focus();
+}
+
+/* ── item type selector ── */
+function setGrocType(type) {
+  grocType = type;
+  document.getElementById('gtBtn-grocery').classList.toggle('sel', type === 'grocery');
+  document.getElementById('gtBtn-grocery').classList.remove('veggie-sel');
+  document.getElementById('gtBtn-veggie').classList.toggle('sel', type === 'veggie');
+  if (type === 'veggie') document.getElementById('gtBtn-veggie').classList.add('veggie-sel');
+}
+
+/* ── add item manually ── */
+function addGrocItemManual() {
+  const name = document.getElementById('grocItemName').value.trim();
+  if (!name) { showToast('Enter an item name', 'error'); return; }
+  const qty = document.getElementById('grocItemQty').value.trim() || '1';
+  grocItems.unshift({ id: genId(), name: cap(name), qty, type: grocType, bought: false, source: 'manual', addedAt: new Date().toISOString() });
+  grocPersist(); renderGrocery();
+  document.getElementById('grocItemName').value = '';
+  document.getElementById('grocItemQty').value = '';
+  showToast(`Added: ${cap(name)} ✅`, 'success');
+}
+
+/* ── render list ── */
+function renderGrocery() {
+  updateGrocStats();
+  const wrap = document.getElementById('grocList');
+  const empty = document.getElementById('grocEmpty');
+  let items = grocTab === 'all' ? grocItems : grocItems.filter(i => i.type === grocTab);
+  // Sort: pending first, then bought; within each group alphabetical
+  items = [...items].sort((a,b) => { if(a.bought!==b.bought) return a.bought?1:-1; return a.name.localeCompare(b.name); });
+  wrap.innerHTML = '';
+  if (!items.length) { empty.classList.add('visible'); return; }
+  empty.classList.remove('visible');
+
+  // Group headers
+  const pending = items.filter(i => !i.bought);
+  const bought  = items.filter(i => i.bought);
+
+  if (pending.length) {
+    const lbl = document.createElement('div'); lbl.className='groc-section-lbl'; lbl.textContent='🛒 To Buy';
+    wrap.appendChild(lbl);
+    pending.forEach(i => wrap.appendChild(buildGrocCard(i)));
+  }
+  if (bought.length) {
+    const lbl = document.createElement('div'); lbl.className='groc-section-lbl'; lbl.textContent='✅ Bought';
+    wrap.appendChild(lbl);
+    bought.forEach(i => wrap.appendChild(buildGrocCard(i)));
+  }
+}
+
+function buildGrocCard(item) {
+  const div = document.createElement('div');
+  div.className = 'groc-item' + (item.bought ? ' bought' : '');
+  const typeIcon = item.type === 'veggie' ? '🥦' : '🛍️';
+  const srcLabel = item.source === 'ai' ? '<span class="groc-src-tag ai">✨ AI</span>' : '<span class="groc-src-tag manual">Manual</span>';
+  div.innerHTML = `
+    <div class="groc-cb ${item.bought?'chk':''}" onclick="toggleGrocBought('${item.id}')"></div>
+    <div class="groc-item-info">
+      <div class="groc-item-name">${typeIcon} ${escHtml(item.name)}</div>
+      <div class="groc-item-sub">
+        <span class="groc-item-qty">Qty: ${escHtml(item.qty)}</span>
+        ${srcLabel}
+      </div>
+    </div>
+    <button class="groc-del" onclick="deleteGrocItem('${item.id}')" title="Remove">🗑️</button>`;
+  return div;
+}
+
+function updateGrocStats() {
+  const total = grocItems.length;
+  const bought = grocItems.filter(i => i.bought).length;
+  document.getElementById('gStatTotal').textContent  = total;
+  document.getElementById('gStatLeft').textContent   = total - bought;
+  document.getElementById('gStatBought').textContent = bought;
+}
+
+/* ── toggle bought ── */
+function toggleGrocBought(id) {
+  const item = grocItems.find(i => i.id === id);
+  if (!item) return;
+  item.bought = !item.bought;
+  grocPersist(); renderGrocery();
+}
+
+/* ── delete item ── */
+function deleteGrocItem(id) {
+  grocItems = grocItems.filter(i => i.id !== id);
+  grocPersist(); renderGrocery();
+}
+
+/* ── clear bought ── */
+function clearBoughtItems() {
+  const n = grocItems.filter(i=>i.bought).length;
+  if (!n) { showToast('No bought items to clear', 'info'); return; }
+  if (!confirm(`Remove ${n} bought item${n>1?'s':''}?`)) return;
+  grocItems = grocItems.filter(i => !i.bought);
+  grocPersist(); renderGrocery();
+  showToast(`Removed ${n} bought item${n>1?'s':''}`, 'info');
+}
+
+/* ── clear all ── */
+function clearAllGrocery() {
+  if (!grocItems.length) return;
+  if (!confirm('Clear entire grocery list?')) return;
+  grocItems = []; grocPersist(); renderGrocery();
+  showToast('Grocery list cleared 🗑️', 'info');
+}
+
+/* ════════════════════════════════════════
+   📷  PHOTO SCAN → CLAUDE VISION API
+════════════════════════════════════════ */
+async function handleGrocPhoto(event) {
+  const file = event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+
+  // Show scan box with spinner
+  const scanBox = document.getElementById('grocScanBox');
+  const scanning = document.getElementById('grocScanning');
+  const results  = document.getElementById('grocScanResults');
+  const preview  = document.getElementById('grocScanPreview');
+
+  scanBox.classList.add('visible');
+  scanning.classList.add('visible');
+  results.style.display = 'none';
+  grocDetected = [];
+
+  // Read as base64
+  const base64 = await new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = () => res(reader.result.split(',')[1]);
+    reader.onerror = rej;
+    reader.readAsDataURL(file);
+  });
+
+  // Show image preview
+  preview.src = 'data:' + file.type + ';base64,' + base64;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: file.type, data: base64 }
+            },
+            {
+              type: 'text',
+              text: `Look at this image and identify all grocery items and vegetables/fruits you can see.
+Return ONLY a JSON array (no markdown, no explanation) like this:
+[{"name":"Tomatoes","qty":"500g","type":"veggie"},{"name":"Bread","qty":"1 loaf","type":"grocery"}]
+Rules:
+- type must be exactly "veggie" for vegetables/fruits/greens, "grocery" for everything else
+- qty should be estimated from the image or "1" if unknown
+- name should be short and clear (e.g. "Spinach", "Milk", "Rice")
+- Include ALL visible items, up to 20
+- Return only the JSON array, nothing else`
+            }
+          ]
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const rawText = data.content?.find(b => b.type === 'text')?.text || '[]';
+
+    // Parse JSON (strip any accidental markdown fences)
+    let parsed;
+    try {
+      const clean = rawText.replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+      if (!Array.isArray(parsed)) throw new Error('not array');
+    } catch {
+      throw new Error('Could not parse AI response');
+    }
+
+    grocDetected = parsed.map((item, idx) => ({ ...item, _id: 'det_' + idx, checked: true }));
+
+    // Render detected list
+    const detList = document.getElementById('grocDetectedList');
+    detList.innerHTML = '';
+    if (!grocDetected.length) {
+      detList.innerHTML = '<div style="font-size:13px;color:var(--text2);text-align:center;padding:12px">No items detected in this image</div>';
+    } else {
+      grocDetected.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'groc-det-item';
+        row.innerHTML = `
+          <input type="checkbox" id="det_${item._id}" checked onchange="toggleDetected('${item._id}',this.checked)" />
+          <span class="groc-det-name">${escHtml(item.name)}</span>
+          <span class="groc-det-qty">${escHtml(item.qty||'1')}</span>
+          <span class="groc-det-tag ${item.type}">${item.type === 'veggie' ? '🥦 Veggie' : '🛍️ Grocery'}</span>`;
+        detList.appendChild(row);
+      });
+    }
+
+    scanning.classList.remove('visible');
+    results.style.display = 'block';
+    showToast(`Detected ${grocDetected.length} items ✨`, 'success');
+
+  } catch (err) {
+    scanning.classList.remove('visible');
+    scanBox.classList.remove('visible');
+    showToast('Scan failed: ' + err.message, 'error');
+  }
+}
+
+function toggleDetected(id, checked) {
+  const item = grocDetected.find(i => i._id === id);
+  if (item) item.checked = checked;
+}
+
+function addSelectedDetected() {
+  const selected = grocDetected.filter(i => i.checked);
+  if (!selected.length) { showToast('Select at least one item', 'error'); return; }
+  selected.forEach(item => {
+    // avoid exact duplicates
+    if (grocItems.some(g => g.name.toLowerCase() === item.name.toLowerCase())) return;
+    grocItems.unshift({ id: genId(), name: cap(item.name), qty: item.qty || '1', type: item.type === 'veggie' ? 'veggie' : 'grocery', bought: false, source: 'ai', addedAt: new Date().toISOString() });
+  });
+  grocPersist(); renderGrocery();
+  document.getElementById('grocScanBox').classList.remove('visible');
+  showToast(`Added ${selected.length} items from photo 📷`, 'success');
+}
+
+/* init grocery on page load */
+window.addEventListener('DOMContentLoaded', () => { renderGrocery(); }, { once: false });
+// (renderGrocery is safe to call multiple times)
+function fabAction() {
+  const activePage = document.querySelector('.page.active')?.id;
+  if (activePage === 'page-grocery') { toggleGrocForm(); }
+  else { openAddDrawer(); }
 }
 </script>
 </body>
